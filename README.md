@@ -51,13 +51,3 @@ The API is queried. After playing with the available parameters, I found leaving
 ![quiz screen](./docs/images/quiz-screen.jpg)
 
 ![end-screen](./docs/images/end-screen.jpg)
-
-
-
-
-
-
-YOUR_OPENAI_API_KEY
-
-
-YOUR_GOOGLE_API_KEY
