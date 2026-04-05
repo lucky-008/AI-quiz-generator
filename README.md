@@ -1,88 +1,139 @@
 # AI Quiz Generator
 
-An AI-powered quiz app that generates challenging, thought-provoking multiple choice questions on any topic. Built with Next.js and powered by multiple AI providers (Groq, Google Gemini, OpenAI) with automatic fallback.
+An AI-powered quiz app that generates challenging multiple choice questions on **any topic**. Powered by multiple AI providers with automatic fallback, wrapped in a fun UI with music, confetti, and sarcastic end-screen messages.
 
-[View Live App](https://ai-quiz-generator-next.vercel.app/)
 
-![home page](./docs/images/home-page.jpg)
 
 ## Features
 
-- **AI-Generated Questions** — Uses advanced prompt engineering to create questions that test real understanding, not just surface-level recall
-- **Multi-Provider AI** — Tries Groq (free) → Google Gemini → OpenAI, with automatic fallback if a provider is unavailable
-- **Customizable Quizzes** — Choose any topic, difficulty level (easy/medium/hard), and number of questions
-- **Smart Distractors** — Wrong answers are designed to target common misconceptions, making quizzes genuinely challenging
-- **Difficulty-Aware** — Easy tests core concepts, Medium requires nuance, Hard covers edge cases and advanced scenarios
-- **Loading Screen** — Displays random programming facts while the AI generates your quiz
-- **Ed-Style Quiz UI** — Multiple choice questions with explanations and a progress bar
-- **Score-Based End Screen** — Adaptive gifs, sarcastic messages, and confetti (>= 80%) based on your score
-- **Audio Player** — 14-track kahoot-flavored music player
+**Quiz Generation**
+- Enter any topic (or leave blank for a random one), pick a difficulty (Easy / Moderate / Hard), and choose 1–100 questions
+- AI generates thought-provoking questions with plausible distractors that target common misconceptions
+- Difficulty-aware prompting: Easy tests core concepts, Moderate requires nuance, Hard covers edge cases
+
+**Multi-Provider AI**
+- Tries providers in order: **Groq** (Llama 3.3 70B) → **Google Gemini** 2.0 Flash → **OpenAI** GPT-4o Mini
+- Automatic fallback — if one provider is down or over quota, the next one kicks in
+- If all providers fail, serves a hardcoded fallback quiz so the app never breaks
+
+**Quiz UI**
+- Multiple choice cards with submit, correct/incorrect feedback (green check / red X), and expandable explanations
+- Animated progress bar (Framer Motion spring animation) tracks how many questions you've answered
+- Syntax highlighting (highlight.js) for code-based questions
+
+**Loading Screen**
+- Animated spinner with pulsing "Generating Quiz..." text
+- Random programming facts and jokes displayed with a typewriter effect
+- Raw AI response stream shown as a decorative background element
+
+**End Screen**
+- Score-based results with 3 tiers: Perfect (100%), Good (≥70%), Bad (<70%)
+- Random sarcastic messages — from backhanded compliments to humorous roasts
+- Random GIFs from Giphy matching your performance
+- Confetti explosion for scores ≥80%
+
+**Audio Player**
+- 14 background music tracks: Original, Fantasy, Adventure, Disco, Funk, 80s Vibe, Reggae, Trance, Beatbox, 8-Bit, Futuristic, Indie Pop, Christmas, Halloween
+- Play/stop toggle, track selector dropdown, 4-level volume cycling (Off → Quiet → Moderate → Loud)
+- Persists across all pages
 
 ## Tech Stack
 
-- **Framework:** Next.js 13.4 (App Router)
-- **Styling:** Tailwind CSS
-- **AI Providers:** Groq (Llama 3.3 70B) · Google Gemini 2.0 Flash · OpenAI GPT-4o Mini
-- **Deployment:** Vercel
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 13.4 (App Router) |
+| Styling | Tailwind CSS |
+| AI Providers | Groq · Google Gemini · OpenAI |
+| Animations | Framer Motion |
+| Font | Poppins (Google Fonts) |
+| Deployment | Vercel |
 
 ## Getting Started
 
-### 1. Clone the repo
+### 1. Clone & install
 
 ```bash
 git clone https://github.com/lucky-008/AI-quiz-generator.git
 cd AI-quiz-generator
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
 ```
 
-### 3. Set up environment variables
+### 2. Set up API keys
 
-Create a `.env.local` file in the root directory:
+Create a `.env.local` file in the root:
 
 ```env
-GROQ_API_KEY=your_groq_api_key
-GOOGLE_API_KEY=your_google_api_key
-OPENAI_API_KEY=your_openai_api_key
+GROQ_API_KEY=your_groq_key
+GOOGLE_API_KEY=your_google_key
+OPENAI_API_KEY=your_openai_key
 ```
 
-You need **at least one** API key. Recommended: **Groq** (free, no credit card required).
+You only need **one** key. Groq is recommended — it's free with no credit card required.
 
-| Provider | Get Key | Free Tier |
-|----------|---------|-----------|
-| Groq | [console.groq.com/keys](https://console.groq.com/keys) | Yes, generous |
+| Provider | Get a Key | Free? |
+|----------|-----------|-------|
+| **Groq** | [console.groq.com/keys](https://console.groq.com/keys) | Yes — generous free tier |
 | Google Gemini | [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) | Yes |
 | OpenAI | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | Paid only |
 
-### 4. Run the dev server
+### 3. Run
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
 ## How It Works
 
-1. User selects a topic, difficulty, and number of questions
-2. A detailed prompt is built with instructions for question quality, distractor design, and difficulty calibration
-3. The app tries AI providers in order: **Groq → Google Gemini → OpenAI**
-4. The AI response is parsed, validated, and normalized into a consistent quiz format
-5. If all providers fail, a hardcoded fallback quiz is served
+```
+User picks topic/difficulty/count
+        ↓
+POST /api/chat with settings
+        ↓
+Try Groq → Try Gemini → Try OpenAI → Fallback
+        ↓
+AI response parsed, validated, normalized
+        ↓
+Quiz rendered → User answers → Score calculated
+        ↓
+End screen with GIF + message + confetti
+```
 
-## Packages Used
+## Project Structure
 
-- [framer-motion](https://www.framer.com/motion/) — Animations
-- [highlight.js](https://www.npmjs.com/package/highlight.js) — Syntax highlighting
+```
+app/
+├── page.jsx                  # Home — topic/difficulty form
+├── quiz/page.jsx             # Quiz — questions, scoring, progress
+├── end-screen/page.jsx       # Results — score, GIF, message
+├── api/chat/route.js         # AI quiz generation endpoint
+├── components/
+│   ├── AudioPlayer.jsx       # 14-track music player
+│   ├── Question.jsx          # MCQ card with feedback
+│   ├── LoadingScreen.jsx     # Animated loader with facts
+│   ├── Facts.jsx             # Typewriter fact display
+│   └── Speak.jsx             # Speech synthesis (unused)
+├── constants/
+│   ├── topics.js             # Pre-defined topic lists
+│   ├── facts.js              # 38 tech facts + 13 jokes
+│   ├── gifs.js               # Score-based GIF collections
+│   ├── endMessages.js        # Sarcastic result messages
+│   └── testQuiz.js           # Dev/test quiz data
+└── utils/
+    ├── index.js              # Utility helpers
+    └── OpenAIStream.js       # SSE streaming (legacy)
+```
+
+## Key Packages
+
+- [framer-motion](https://www.framer.com/motion/) — Progress bar animation
+- [highlight.js](https://highlightjs.org/) — Code syntax highlighting
 - [react-confetti](https://www.npmjs.com/package/react-confetti) — Confetti effect
-- [react-loader-spinner](https://www.npmjs.com/package/react-loader-spinner) — Loading spinners
-- [react-icons](https://react-icons.github.io/react-icons/) — Icons
-- [react-use](https://github.com/streamich/react-use) — `useAudio()` hook
-- [react-simple-typewriter](https://www.npmjs.com/package/react-simple-typewriter) — Typewriter effect
+- [react-simple-typewriter](https://www.npmjs.com/package/react-simple-typewriter) — Typewriter text
+- [react-loader-spinner](https://www.npmjs.com/package/react-loader-spinner) — Loading animation
+- [react-icons](https://react-icons.github.io/react-icons/) — UI icons
+- [react-use](https://github.com/streamich/react-use) — Audio hook
 
 ## Screenshots
 
