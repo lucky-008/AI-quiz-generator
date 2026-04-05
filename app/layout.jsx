@@ -5,10 +5,10 @@ import './globals.css'
 
 import { Inter, Poppins, Lato } from 'next/font/google'
 
-const poppins = Poppins({ subsets: ['latin'], weight: '400' })
+const poppins = Poppins({ subsets: ['latin'], weight: '400', fallback: ['system-ui', 'sans-serif'] })
 
-const inter = Inter({ subsets: ['latin'] })
-const lato = Lato({ subsets: ['latin'], weight: '400' })
+const inter = Inter({ subsets: ['latin'], fallback: ['system-ui', 'sans-serif'] })
+const lato = Lato({ subsets: ['latin'], weight: '400', fallback: ['system-ui', 'sans-serif'] })
 
 // can only do this if it's a server component
 // export const metadata = {

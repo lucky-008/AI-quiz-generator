@@ -1,9 +1,19 @@
-export const runtime = 'edge'
-
 function buildPrompt({ topic, difficulty, numQuestions }) {
     const resolvedTopic = topic?.trim() || 'a random topic'
 
-    return `Give me ${numQuestions} multiple choice questions about ${resolvedTopic}. The questions should be at a ${difficulty} level. Return your answer entirely in the form of a JSON object. The JSON object should have a key named "questions" which is an array of the questions. Each quiz question should include the choices, the answer, and a brief explanation of why the answer is correct. Don't include anything other than the JSON. The JSON properties of each question should be "query", "choices", "answer", and "explanation". The choices should not have any ordinal value like A, B, C, D or a number like 1, 2, 3, 4. The answer should be the 0-indexed number of the correct choice.`
+    return `You are an expert quiz master who creates challenging, thought-provoking questions that truly test understanding — not just surface-level recall.
+
+Generate ${numQuestions} multiple choice questions about ${resolvedTopic} at a ${difficulty} difficulty level.
+
+Requirements for HIGH-QUALITY questions:
+- Focus on conceptual understanding, application, and critical thinking — NOT trivial definitions or obvious facts.
+- Include tricky but fair distractors (wrong choices) that sound plausible and target common misconceptions.
+- Each question should require the test-taker to actually THINK, not just recognize a keyword.
+- Vary question types: "what happens when…", "which of the following is TRUE/FALSE", "what is the best approach for…", "why does X behave this way", scenario-based questions, code output questions (if technical), edge cases, and comparisons.
+- For ${difficulty === 'easy' ? 'easy: questions should still be meaningful — test core concepts clearly but avoid being trivially obvious' : difficulty === 'medium' ? 'medium: questions should require solid understanding, include some nuance, and test ability to distinguish similar concepts' : 'hard: questions should cover edge cases, subtle distinctions, advanced scenarios, and require deep expertise'}.
+- Explanations should teach — briefly explain WHY the correct answer is right AND why the most tempting wrong answer is wrong.
+
+Return your answer entirely in the form of a JSON object. The JSON object should have a key named "questions" which is an array of the questions. Don't include anything other than the JSON. The JSON properties of each question should be "query", "choices", "answer", and "explanation". The choices should not have any ordinal value like A, B, C, D or a number like 1, 2, 3, 4. The answer should be the 0-indexed number of the correct choice. Each question must have exactly 4 choices.`
 }
 
 function normalizeQuizResponse(payload, fallbackCount) {
@@ -179,8 +189,44 @@ function createFallbackQuiz(topic, difficulty, numQuestions) {
     }
 }
 
+async function generateWithGroq(prompt) {
+    if (!process.env.GROQ_API_KEY || process.env.GROQ_API_KEY === 'test') {
+        console.log('[Quiz] No valid GROQ_API_KEY set')
+        return null
+    }
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+                { role: 'system', content: 'You are an expert quiz creator. Generate challenging, thoughtful questions with plausible distractors. Never create trivially easy or obvious questions. Respond ONLY with valid JSON.' },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.9,
+            max_tokens: 4096,
+            response_format: { type: 'json_object' },
+        }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data?.error?.message || 'Groq quiz generation failed.'
+        )
+    }
+
+    return data?.choices?.[0]?.message?.content || null
+}
+
 async function generateWithGoogle(prompt) {
-    if (!process.env.GOOGLE_API_KEY) {
+    if (!process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY === 'test') {
+        console.log('[Quiz] No valid GOOGLE_API_KEY set')
         return null
     }
 
@@ -198,7 +244,7 @@ async function generateWithGoogle(prompt) {
                     },
                 ],
                 generationConfig: {
-                    temperature: 0.7,
+                    temperature: 0.9,
                     responseMimeType: 'application/json',
                 },
             }),
@@ -217,7 +263,8 @@ async function generateWithGoogle(prompt) {
 }
 
 async function generateWithOpenAI(prompt) {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'test') {
+        console.log('[Quiz] No valid OPENAI_API_KEY set')
         return null
     }
 
@@ -229,9 +276,12 @@ async function generateWithOpenAI(prompt) {
         },
         body: JSON.stringify({
             model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: 0.7,
-            max_tokens: 2048,
+            messages: [
+                { role: 'system', content: 'You are an expert quiz creator. Generate challenging, thoughtful questions with plausible distractors. Never create trivially easy or obvious questions.' },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.9,
+            max_tokens: 4096,
             response_format: { type: 'json_object' },
         }),
     })
@@ -267,20 +317,41 @@ export async function POST(request) {
         let content = null
         const providerErrors = []
 
+        console.log('[Quiz] Attempting Groq (free)...')
         try {
-            content = await generateWithGoogle(prompt)
-        } catch (googleError) {
+            content = await generateWithGroq(prompt)
+            if (content) console.log('[Quiz] Groq succeeded!')
+        } catch (groqError) {
+            console.error('[Quiz] Groq failed:', groqError?.message || groqError)
             providerErrors.push(
-                googleError instanceof Error
-                    ? googleError.message
-                    : 'Google quiz generation failed.'
+                groqError instanceof Error
+                    ? groqError.message
+                    : 'Groq quiz generation failed.'
             )
         }
 
         if (!content) {
+            console.log('[Quiz] Attempting Google Gemini...')
+            try {
+                content = await generateWithGoogle(prompt)
+                if (content) console.log('[Quiz] Google Gemini succeeded!')
+            } catch (googleError) {
+                console.error('[Quiz] Google failed:', googleError?.message || googleError)
+                providerErrors.push(
+                    googleError instanceof Error
+                        ? googleError.message
+                        : 'Google quiz generation failed.'
+                )
+            }
+        }
+
+        if (!content) {
+            console.log('[Quiz] Attempting OpenAI...')
             try {
                 content = await generateWithOpenAI(prompt)
+                if (content) console.log('[Quiz] OpenAI succeeded!')
             } catch (openAIError) {
+                console.error('[Quiz] OpenAI failed:', openAIError?.message || openAIError)
                 providerErrors.push(
                     openAIError instanceof Error
                         ? openAIError.message
@@ -290,10 +361,10 @@ export async function POST(request) {
         }
 
         if (!content) {
+            console.warn('[Quiz] All providers failed, using fallback. Errors:', providerErrors)
             return Response.json(createFallbackQuiz(topic, difficulty, numQuestions), {
                 headers: {
                     'X-Quiz-Source': 'fallback',
-                    'X-Quiz-Provider-Errors': providerErrors.join(' | ').slice(0, 500),
                 },
             })
         }
