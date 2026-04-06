@@ -46,44 +46,44 @@ const DashboardPage = () => {
     }
 
     const difficultyColor = (d) => {
-        if (d === 'easy') return 'text-emerald-400'
-        if (d === 'moderate') return 'text-yellow-400'
+        if (d === 'easy') return 'text-cyan-400'
+        if (d === 'moderate') return 'text-blue-300'
         return 'text-red-400'
     }
 
     const scoreColor = (s) => {
-        if (s >= 0.8) return 'text-emerald-400'
-        if (s >= 0.5) return 'text-yellow-400'
+        if (s >= 0.8) return 'text-cyan-300'
+        if (s >= 0.5) return 'text-blue-300'
         return 'text-red-400'
     }
 
     return (
         <div className='min-h-screen py-12'>
-            <h1 className='text-center text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-500 via-pink-400 to-blue-500 bg-clip-text text-transparent q-animate-gradient'>
+            <h1 className='text-center text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-600 bg-clip-text text-transparent q-animate-gradient'>
                 User Dashboard
             </h1>
 
             {/* Summary cards */}
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10 max-w-3xl mx-auto'>
-                <div className='bg-stone-700/50 rounded p-6 text-center'>
-                    <p className='text-3xl font-bold text-emerald-300'>{totalQuizzes}</p>
-                    <p className='text-sm text-gray-400 mt-1'>Quizzes Taken</p>
+                <div className='bg-blue-900/20 border border-blue-500/20 rounded p-6 text-center'>
+                    <p className='text-3xl font-bold text-cyan-300'>{totalQuizzes}</p>
+                    <p className='text-sm text-blue-300/60 mt-1'>Quizzes Taken</p>
                 </div>
-                <div className='bg-stone-700/50 rounded p-6 text-center'>
-                    <p className='text-3xl font-bold text-pink-300'>{totalQuestions}</p>
-                    <p className='text-sm text-gray-400 mt-1'>Total Questions</p>
+                <div className='bg-blue-900/20 border border-blue-500/20 rounded p-6 text-center'>
+                    <p className='text-3xl font-bold text-blue-300'>{totalQuestions}</p>
+                    <p className='text-sm text-blue-300/60 mt-1'>Total Questions</p>
                 </div>
-                <div className='bg-stone-700/50 rounded p-6 text-center'>
-                    <p className='text-3xl font-bold text-blue-300'>{avgScore.toFixed(1)}%</p>
-                    <p className='text-sm text-gray-400 mt-1'>Average Score</p>
+                <div className='bg-blue-900/20 border border-blue-500/20 rounded p-6 text-center'>
+                    <p className='text-3xl font-bold text-cyan-200'>{avgScore.toFixed(1)}%</p>
+                    <p className='text-sm text-blue-300/60 mt-1'>Average Score</p>
                 </div>
             </div>
 
             {/* Breakdown tables */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 max-w-3xl mx-auto'>
                 {/* By Topic */}
-                <div className='bg-stone-700/30 rounded p-5'>
-                    <h2 className='text-lg font-semibold text-emerald-300 mb-3'>By Topic</h2>
+                <div className='bg-blue-900/20 border border-blue-500/20 rounded p-5'>
+                    <h2 className='text-lg font-semibold text-cyan-300 mb-3'>By Topic</h2>
                     {Object.keys(byTopic).length === 0 ? (
                         <p className='text-gray-400 text-sm'>No data yet</p>
                     ) : (
@@ -109,8 +109,8 @@ const DashboardPage = () => {
                 </div>
 
                 {/* By Difficulty / Level */}
-                <div className='bg-stone-700/30 rounded p-5'>
-                    <h2 className='text-lg font-semibold text-pink-300 mb-3'>By Level</h2>
+                <div className='bg-blue-900/20 border border-blue-500/20 rounded p-5'>
+                    <h2 className='text-lg font-semibold text-blue-300 mb-3'>By Level</h2>
                     {Object.keys(byDifficulty).length === 0 ? (
                         <p className='text-gray-400 text-sm'>No data yet</p>
                     ) : (
@@ -138,12 +138,12 @@ const DashboardPage = () => {
 
             {/* Recent activity */}
             <div className='mt-10 max-w-3xl mx-auto'>
-                <h2 className='text-lg font-semibold text-blue-300 mb-3'>Recent Activity</h2>
+                <h2 className='text-lg font-semibold text-cyan-300 mb-3'>Recent Activity</h2>
                 {activity.length === 0 ? (
                     <p className='text-gray-400 text-sm'>No quizzes taken yet. Go generate one!</p>
                 ) : (
                     <div className='overflow-x-auto'>
-                        <table className='w-full text-sm bg-stone-700/30 rounded'>
+                        <table className='w-full text-sm bg-blue-900/20 border border-blue-500/20 rounded'>
                             <thead>
                                 <tr className='text-gray-400 border-b border-gray-600'>
                                     <th className='text-left p-3'>#</th>
@@ -159,7 +159,7 @@ const DashboardPage = () => {
                                     <>
                                         <tr
                                             key={a.id}
-                                            className='border-b border-gray-700/50 cursor-pointer hover:bg-stone-600/30'
+                                            className='border-b border-blue-900/30 cursor-pointer hover:bg-blue-500/10'
                                             onClick={() => setExpandedId(expandedId === a.id ? null : a.id)}
                                         >
                                             <td className='p-3 text-gray-400'>{activity.length - i}</td>
@@ -176,11 +176,11 @@ const DashboardPage = () => {
                                         {expandedId === a.id && a.questions && a.questions.length > 0 && (
                                             <tr key={`${a.id}-questions`}>
                                                 <td colSpan={6} className='p-0'>
-                                                    <div className='bg-stone-800/60 p-4 border-b border-gray-700/50'>
-                                                        <h3 className='text-sm font-semibold text-emerald-300 mb-3'>Generated Questions</h3>
+                                                    <div className='bg-[#0a0e1a]/80 p-4 border-b border-blue-900/30'>
+                                                        <h3 className='text-sm font-semibold text-cyan-300 mb-3'>Generated Questions</h3>
                                                         <div className='space-y-3'>
                                                             {a.questions.map((q, qi) => (
-                                                                <div key={qi} className='bg-stone-700/40 rounded p-3'>
+                                                                <div key={qi} className='bg-blue-900/20 border border-blue-500/10 rounded p-3'>
                                                                     <p className='text-sm font-medium'>
                                                                         <span className='text-gray-400 mr-2'>Q{qi + 1}.</span>
                                                                         {q.query}
@@ -189,7 +189,7 @@ const DashboardPage = () => {
                                                                         {q.choices?.map((c, ci) => (
                                                                             <p key={ci} className={`text-xs ${
                                                                                 ci === Number(q.answer)
-                                                                                    ? 'text-emerald-400 font-semibold'
+                                                                                    ? 'text-cyan-300 font-semibold'
                                                                                     : 'text-gray-400'
                                                                             }`}>
                                                                                 {String.fromCharCode(65 + ci)}. {c}
@@ -220,7 +220,7 @@ const DashboardPage = () => {
                 {activity.length > 0 && (
                     <button
                         onClick={handleClear}
-                        className='inline-block border-2 border-red-400 rounded text-red-400 text-center uppercase text-lg font-semibold px-6 py-2 hover:bg-red-400/40 hover:text-white duration-75'
+                        className='inline-block border-2 border-red-500/60 rounded text-red-400 text-center uppercase text-lg font-semibold px-6 py-2 hover:bg-red-500/30 hover:text-white duration-75'
                     >
                         Clear History
                     </button>

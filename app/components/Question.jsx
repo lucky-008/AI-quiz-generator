@@ -82,10 +82,10 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
 
     const submitButtonStyles = () => {
         let style = isSelected
-            ? 'pointer-events-auto bg-cyan-600/75'
-            : 'pointer-events-none border-gray-500 bg-stone-700'
+            ? 'pointer-events-auto bg-blue-600/75'
+            : 'pointer-events-none border-blue-900/50 bg-[#111827]'
         style = isSubmitted
-            ? 'pointer-events-none border-gray-500 bg-stone-700 opacity-50'
+            ? 'pointer-events-none border-blue-900/50 bg-[#111827] opacity-50'
             : style
         return style
     }
@@ -102,18 +102,18 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
             let style = ''
 
             style = choice.isSelected
-                ? 'border-cyan-600/75 bg-cyan-600/20'
-                : 'border-gray-500 hover:bg-cyan-600/10'
+                ? 'border-blue-500 bg-blue-500/20'
+                : 'border-blue-900/50 hover:bg-blue-500/10'
 
             let checkOrX = null
 
             if (isSubmitted) {
                 if (index === selectedChoiceIndex) {
                     if (isCorrect()) {
-                        style = 'border-emerald-300 bg-emerald-300/10'
+                        style = 'border-cyan-300 bg-cyan-300/10'
                         checkOrX = (
                             <div>
-                                <HiCheck size={30} color='#6ee7b7' />
+                                <HiCheck size={30} color='#67e8f9' />
                             </div>
                         )
                     } else {
@@ -129,10 +129,10 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
 
             if (isExplained) {
                 if (index === Number(answer)) {
-                    style = 'border-emerald-300 bg-emerald-300/10'
+                    style = 'border-cyan-300 bg-cyan-300/10'
                     checkOrX = (
                         <div>
-                            <HiCheck size={30} color='#6ee7b7' />
+                            <HiCheck size={30} color='#67e8f9' />
                         </div>
                     )
                 }
@@ -193,7 +193,7 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
                     {isSubmitted && (
                         <button
                             onClick={handleExplain}
-                            className={`px-6 py-3  border-gray-500 rounded bg-stone-700 hover:bg-stone-600 ${explainButtonStyles()}`}
+                            className={`px-6 py-3  border-blue-900/50 rounded bg-[#111827] hover:bg-blue-900/40 ${explainButtonStyles()}`}
                         >
                             Explain
                         </button>
@@ -206,8 +206,8 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
                     </button>
                 </div>
                 {((isSubmitted && isCorrect()) || isExplained) && (
-                    <div className='mt-2 p-4 rounded bg-stone-700/50'>
-                        <h3 className='text-emerald-300/60 text-sm font-bold'>
+                    <div className='mt-2 p-4 rounded bg-blue-900/20 border border-blue-500/20'>
+                        <h3 className='text-cyan-300/80 text-sm font-bold'>
                             Explanation
                         </h3>
                         <p className='mt-2 text-sm font-light'>{explanation}</p>

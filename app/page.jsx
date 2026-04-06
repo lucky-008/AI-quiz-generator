@@ -66,7 +66,7 @@ const HomePage = () => {
     return (
         <div className='min-h-screen grid place-items-center'>
             <div className='border rounded border-white/0 '>
-                <h1 className='text-center text-5xl md:text-7xl font-bold bg-gradient-to-r from-emerald-500 via-pink-400 to-blue-500 bg-clip-text text-transparent q-animate-gradient'>
+                <h1 className='text-center text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-600 bg-clip-text text-transparent q-animate-gradient'>
                     AI Quiz Generator
                 </h1>
 
@@ -151,7 +151,7 @@ const HomePage = () => {
             </div>
 
             <a
-                className='fixed bottom-0 flex items-center gap-2 pb-2 font-mono text-sm text-white/70 transition hover:text-emerald-300 sm:m-0'
+                className='fixed bottom-0 flex items-center gap-2 pb-2 font-mono text-sm text-white/70 transition hover:text-cyan-300 sm:m-0'
                 href='https://github.com/quentin-mckay/ai-quiz-generator'
                 target='_blank'
             >

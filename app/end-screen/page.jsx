@@ -84,13 +84,13 @@ const EndScreen = () => {
                 <p className='text-3xl mt-12 text-center'>{message}</p>
 
                 <button
-                    className='inline-block border-2 border-emerald-400 rounded text-emerald-400 text-center uppercase text-lg font-semibold mx-auto mt-8 px-6 py-2 hover:bg-emerald-400/40 hover:border-emerald-400 hover:text-white duration-75 active:bg-emerald-600'
+                    className='inline-block border-2 border-cyan-400 rounded text-cyan-400 text-center uppercase text-lg font-semibold mx-auto mt-8 px-6 py-2 hover:bg-cyan-400/40 hover:border-cyan-300 hover:text-white duration-75 active:bg-blue-600'
                     onClick={handlePlayAgain}
                 >
                     Play again
                 </button>
                 <button
-                    className='inline-block border-2 border-blue-400 rounded text-blue-400 text-center uppercase text-lg font-semibold mx-auto mt-4 px-6 py-2 hover:bg-blue-400/40 hover:border-blue-400 hover:text-white duration-75 active:bg-blue-600'
+                    className='inline-block border-2 border-blue-500 rounded text-blue-400 text-center uppercase text-lg font-semibold mx-auto mt-4 px-6 py-2 hover:bg-blue-500/40 hover:border-blue-400 hover:text-white duration-75 active:bg-blue-700'
                     onClick={() => router.push('/dashboard')}
                 >
                     Dashboard

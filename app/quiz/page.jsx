@@ -113,7 +113,7 @@ const QuizPage = () => {
     const timerColor = () => {
         if (timeLeft <= 30) return 'text-red-400'
         if (timeLeft <= numQuestions * 20) return 'text-yellow-400'
-        return 'text-emerald-300'
+        return 'text-cyan-300'
     }
 
     useEffect(() => {
@@ -154,7 +154,7 @@ const QuizPage = () => {
 
             {/* Overall timer */}
             {!isLoading && !errorMessage && quiz.length > 0 && (
-                <div className='fixed top-12 right-4 z-20 bg-stone-800/80 border border-gray-600 rounded-lg px-4 py-2'>
+                <div className='fixed top-12 right-4 z-20 bg-[#0a0e1a]/90 border border-blue-500/30 rounded-lg px-4 py-2'>
                     <span className={`text-lg font-mono font-bold ${timerColor()}`}>
                         {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
                     </span>
