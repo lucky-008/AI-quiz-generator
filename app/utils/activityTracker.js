@@ -27,3 +27,27 @@ export function saveQuizActivity({ topic, difficulty, numQuestions, score, quest
 export function clearActivity() {
     localStorage.removeItem(STORAGE_KEY)
 }
+
+export function getWeakTopics() {
+    const activity = getActivity()
+    if (activity.length === 0) return []
+
+    const topicStats = {}
+    for (const a of activity) {
+        const t = a.topic
+        if (!topicStats[t]) topicStats[t] = { totalScore: 0, count: 0, lastDifficulty: a.difficulty }
+        topicStats[t].totalScore += a.score
+        topicStats[t].count += 1
+        topicStats[t].lastDifficulty = a.difficulty
+    }
+
+    return Object.entries(topicStats)
+        .map(([topic, stats]) => ({
+            topic,
+            avgScore: stats.totalScore / stats.count,
+            attempts: stats.count,
+            lastDifficulty: stats.lastDifficulty,
+        }))
+        .filter((t) => t.avgScore < 0.3)
+        .sort((a, b) => a.avgScore - b.avgScore)
+}

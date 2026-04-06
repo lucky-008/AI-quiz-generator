@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 
@@ -28,6 +28,51 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
             isSelected: false,
         }))
     )
+
+    // Explanation chat state
+    const [chatOpen, setChatOpen] = useState(false)
+    const [chatHistory, setChatHistory] = useState([])
+    const [chatInput, setChatInput] = useState('')
+    const [chatLoading, setChatLoading] = useState(false)
+    const chatEndRef = useRef(null)
+
+    const scrollChatToBottom = () => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    useEffect(() => {
+        scrollChatToBottom()
+    }, [chatHistory])
+
+    const handleChatSend = async () => {
+        const msg = chatInput.trim()
+        if (!msg || chatLoading) return
+
+        const newHistory = [...chatHistory, { role: 'user', content: msg }]
+        setChatHistory(newHistory)
+        setChatInput('')
+        setChatLoading(true)
+
+        try {
+            const res = await fetch('/api/explain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question: query,
+                    userAnswer: choices[selectedChoiceIndex] || 'No answer selected',
+                    correctAnswer: choices[Number(answer)],
+                    explanation,
+                    chatHistory: newHistory,
+                }),
+            })
+            const data = await res.json()
+            setChatHistory((prev) => [...prev, { role: 'assistant', content: data.reply || 'Sorry, could not generate a response.' }])
+        } catch {
+            setChatHistory((prev) => [...prev, { role: 'assistant', content: 'Something went wrong. Please try again.' }])
+        } finally {
+            setChatLoading(false)
+        }
+    }
 
     // Auto-submit when global timer runs out
     useEffect(() => {
@@ -211,6 +256,74 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
                             Explanation
                         </h3>
                         <p className='mt-2 text-sm font-light'>{explanation}</p>
+                    </div>
+                )}
+
+                {/* Chat with AI - shows only when user got it wrong */}
+                {isSubmitted && !isCorrect() && isExplained && (
+                    <div className='mt-3'>
+                        {!chatOpen ? (
+                            <button
+                                onClick={() => setChatOpen(true)}
+                                className='text-sm border border-cyan-400/50 text-cyan-400 rounded px-4 py-1.5 hover:bg-cyan-400/20 transition'
+                            >
+                                Chat with AI Tutor
+                            </button>
+                        ) : (
+                            <div className='border border-blue-500/20 rounded bg-[#0a0e1a]/80 overflow-hidden'>
+                                <div className='p-3 border-b border-blue-500/20 flex items-center justify-between'>
+                                    <h4 className='text-sm font-semibold text-cyan-300'>AI Tutor</h4>
+                                    <button
+                                        onClick={() => setChatOpen(false)}
+                                        className='text-gray-400 hover:text-white text-xs'
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                                <div className='max-h-64 overflow-y-auto p-3 space-y-2'>
+                                    {chatHistory.length === 0 && (
+                                        <p className='text-xs text-gray-400'>Ask anything about this question — why your answer was wrong, or to explain the concept further.</p>
+                                    )}
+                                    {chatHistory.map((msg, i) => (
+                                        <div
+                                            key={i}
+                                            className={`text-sm p-2 rounded ${
+                                                msg.role === 'user'
+                                                    ? 'bg-blue-600/20 text-white ml-8'
+                                                    : 'bg-blue-900/30 text-gray-200 mr-8'
+                                            }`}
+                                        >
+                                            <p className='text-[10px] font-semibold mb-1 text-cyan-400/60'>
+                                                {msg.role === 'user' ? 'You' : 'AI Tutor'}
+                                            </p>
+                                            {msg.content}
+                                        </div>
+                                    ))}
+                                    {chatLoading && (
+                                        <div className='text-xs text-cyan-300/60 animate-pulse ml-1'>AI is thinking...</div>
+                                    )}
+                                    <div ref={chatEndRef} />
+                                </div>
+                                <div className='p-2 border-t border-blue-500/20 flex gap-2'>
+                                    <input
+                                        type='text'
+                                        value={chatInput}
+                                        onChange={(e) => setChatInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleChatSend()}
+                                        placeholder='Ask a follow-up question...'
+                                        className='flex-1 bg-[#111827] border border-blue-500/30 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-cyan-400'
+                                        style={{ userSelect: 'auto', WebkitUserSelect: 'auto' }}
+                                    />
+                                    <button
+                                        onClick={handleChatSend}
+                                        disabled={chatLoading || !chatInput.trim()}
+                                        className='bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-sm px-4 py-1.5 rounded transition'
+                                    >
+                                        Send
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

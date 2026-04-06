@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getActivity, clearActivity } from '../utils/activityTracker'
+import { getActivity, clearActivity, getWeakTopics } from '../utils/activityTracker'
 
 const DashboardPage = () => {
     const router = useRouter()
     const [activity, setActivity] = useState([])
     const [expandedId, setExpandedId] = useState(null)
+    const [weakTopics, setWeakTopics] = useState([])
 
     useEffect(() => {
         setActivity(getActivity())
+        setWeakTopics(getWeakTopics())
     }, [])
 
     const totalQuizzes = activity.length
@@ -78,6 +80,43 @@ const DashboardPage = () => {
                     <p className='text-sm text-blue-300/60 mt-1'>Average Score</p>
                 </div>
             </div>
+
+            {/* Weak Areas */}
+            {weakTopics.length > 0 && (
+                <div className='mt-10 max-w-3xl mx-auto'>
+                    <div className='bg-red-900/15 border border-red-500/20 rounded p-5'>
+                        <h2 className='text-lg font-semibold text-red-400 mb-1'>Weak Areas Detected</h2>
+                        <p className='text-xs text-gray-400 mb-4'>Topics where your average score is below 30%. Practice to improve!</p>
+                        <div className='space-y-3'>
+                            {weakTopics.map((wt) => (
+                                <div key={wt.topic} className='flex items-center justify-between bg-[#0a0e1a]/60 rounded p-3'>
+                                    <div>
+                                        <p className='capitalize font-medium'>{wt.topic}</p>
+                                        <p className='text-xs text-gray-400 mt-1'>
+                                            Avg score: <span className='text-red-400 font-semibold'>{(wt.avgScore * 100).toFixed(0)}%</span>
+                                            {' · '}{wt.attempts} attempt{wt.attempts !== 1 ? 's' : ''}
+                                            {' · '}Last level: <span className='capitalize'>{wt.lastDifficulty}</span>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            const params = new URLSearchParams({
+                                                topic: wt.topic,
+                                                difficulty: wt.lastDifficulty,
+                                                numQuestions: '5',
+                                            })
+                                            router.push(`/quiz?${params.toString()}`)
+                                        }}
+                                        className='text-sm border border-cyan-400 text-cyan-400 rounded px-4 py-1.5 hover:bg-cyan-400/20 hover:text-white transition shrink-0 ml-4'
+                                    >
+                                        Practice
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Breakdown tables */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 max-w-3xl mx-auto'>
