@@ -46,7 +46,7 @@ An AI-powered quiz app that generates challenging multiple choice questions on *
 | AI Providers | Groq · Google Gemini · OpenAI |
 | Animations | Framer Motion |
 | Font | Poppins (Google Fonts) |
-| Deployment | Vercel |
+
 
 ## Getting Started
 

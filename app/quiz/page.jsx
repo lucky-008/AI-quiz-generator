@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -10,6 +10,8 @@ import LoadingScreen from '../components/LoadingScreen'
 import Question from '../components/Question'
 
 import { testQuiz } from '../constants/testQuiz'
+
+import { saveQuizActivity } from '../utils/activityTracker'
 
 import 'highlight.js/styles/atom-one-dark.css'
 import hljs from 'highlight.js'
@@ -33,6 +35,11 @@ const QuizPage = () => {
     const [progress, setProgress] = useState(0)
 
     const [responseStream, setResponseStream] = useState('')
+
+    // Overall timer: 1 minute per question
+    const [timeLeft, setTimeLeft] = useState(numQuestions * 60)
+    const [timeUp, setTimeUp] = useState(false)
+    const timerRef = useRef(null)
 
     const scaleX = useSpring(progress, {
         stiffness: 100,
@@ -80,6 +87,35 @@ const QuizPage = () => {
         generateQuestions()
     }, [difficulty, topic, numQuestions])
 
+    // Start timer once quiz is loaded
+    useEffect(() => {
+        if (quiz.length === 0) return
+        timerRef.current = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timerRef.current)
+                    setTimeUp(true)
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+        return () => clearInterval(timerRef.current)
+    }, [quiz])
+
+    // Stop timer when all questions submitted
+    useEffect(() => {
+        if (numSubmitted === numQuestions && numQuestions !== 0) {
+            clearInterval(timerRef.current)
+        }
+    }, [numSubmitted, numQuestions])
+
+    const timerColor = () => {
+        if (timeLeft <= 30) return 'text-red-400'
+        if (timeLeft <= numQuestions * 20) return 'text-yellow-400'
+        return 'text-emerald-300'
+    }
+
     useEffect(() => {
         hljs.highlightAll()
     }, [quiz])
@@ -91,6 +127,13 @@ const QuizPage = () => {
         // if all questions submitted
         if (numSubmitted === numQuestions && numQuestions !== 0) {
             const score = numCorrect / numSubmitted
+            saveQuizActivity({
+                topic,
+                difficulty,
+                numQuestions,
+                score,
+                questions: quiz,
+            })
             router.push(`/end-screen?score=${score}`)
         }
     }, [numSubmitted, numQuestions, numCorrect, router])
@@ -108,6 +151,15 @@ const QuizPage = () => {
             </div> */}
 
             <motion.div className='progress-bar' style={{ scaleX }} />
+
+            {/* Overall timer */}
+            {!isLoading && !errorMessage && quiz.length > 0 && (
+                <div className='fixed top-12 right-4 z-20 bg-stone-800/80 border border-gray-600 rounded-lg px-4 py-2'>
+                    <span className={`text-lg font-mono font-bold ${timerColor()}`}>
+                        {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
+                    </span>
+                </div>
+            )}
 
             {/* <h1 className='pt-12 text-3xl font-semibold text-center'>
                 Quiz Page
@@ -145,6 +197,7 @@ const QuizPage = () => {
                                 key={index}
                                 setNumSubmitted={setNumSubmitted}
                                 setNumCorrect={setNumCorrect}
+                                timeUp={timeUp}
                             />
                         </div>
                     ))}

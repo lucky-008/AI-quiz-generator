@@ -10,7 +10,7 @@ import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 //     explanation: 'Explanation',
 // }
 
-const Question = ({ question, id, setNumSubmitted, setNumCorrect }) => {
+const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
     // const Question = ({ question, choices, explanation, answer }: QuestionProps) => {
     // const Question: React.FC<QuestionProps> = ({ question, choices, explanation, answer }: QuestionProps) => {
 
@@ -28,6 +28,13 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect }) => {
             isSelected: false,
         }))
     )
+
+    // Auto-submit when global timer runs out
+    useEffect(() => {
+        if (timeUp && !isSubmitted) {
+            handleAnswerSubmit()
+        }
+    }, [timeUp])
 
     const isCorrect = () => {
         return Number(answer) === selectedChoiceIndex
@@ -169,7 +176,13 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect }) => {
     }, [])
 
     return (
-        <div className='max-w-3xl mx-auto'>
+        <div
+            className='max-w-3xl mx-auto'
+            onCopy={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
+            onPaste={(e) => e.preventDefault()}
+            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+        >
             <h2 className='text-sm font-semibold text-gray-300/80'>
                 Question {id + 1}
             </h2>

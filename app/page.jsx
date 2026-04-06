@@ -19,6 +19,7 @@ const HomePage = () => {
     const [topic, setTopic] = useState('')
     const [difficulty, setDifficulty] = useState('easy')
     const [numQuestions, setNumQuestions] = useState('5')
+    const [topicError, setTopicError] = useState('')
 
     // const handleLanguageSelect = (e) => {
     //     setLanguage(e.target.value)
@@ -28,6 +29,13 @@ const HomePage = () => {
         e.preventDefault()
 
         const trimmedTopic = topic.trim().toLowerCase()
+
+        if (!trimmedTopic) {
+            setTopicError('Please enter a topic before generating a quiz.')
+            return
+        }
+
+        setTopicError('')
         const parsedCount = Number(numQuestions)
         const safeCount = Number.isFinite(parsedCount)
             ? Math.min(Math.max(parsedCount, 1), 100)
@@ -35,11 +43,8 @@ const HomePage = () => {
         const query = new URLSearchParams({
             difficulty,
             numQuestions: String(safeCount),
+            topic: trimmedTopic,
         })
-
-        if (trimmedTopic) {
-            query.set('topic', trimmedTopic)
-        }
 
         router.push(`/quiz?${query.toString()}`)
     }
@@ -79,11 +84,14 @@ const HomePage = () => {
                                 type='text'
                                 id='topic'
                                 value={topic}
-                                onChange={(e) => setTopic(e.target.value)}
                                 name='topic'
                                 placeholder='Enter any topic, for example javascript or system design'
-                                className='quiz-select'
+                                className={`quiz-select ${topicError ? 'border-2 border-red-400' : ''}`}
+                                onChange={(e) => { setTopic(e.target.value); setTopicError('') }}
                             />
+                            {topicError && (
+                                <p className='text-red-400 text-xs mt-1'>{topicError}</p>
+                            )}
                         </div>
 
                         <div className='flex flex-col gap-3'>
@@ -123,16 +131,20 @@ const HomePage = () => {
 
                     <div className='flex flex-col gap-1'>
                         <p className='text-xs text-white/50'>
-                            Leave topic blank to generate a random quiz.
-                        </p>
-                        <p className='text-xs text-white/50'>
                             You can generate up to 100 questions.
                         </p>
                     </div>
 
-                    <div className='mx-auto mt-8'>
+                    <div className='mx-auto mt-8 flex gap-4'>
                         <button type='submit' className='q-button'>
                             Generate Quiz
+                        </button>
+                        <button
+                            type='button'
+                            className='q-button'
+                            onClick={() => router.push('/dashboard')}
+                        >
+                            Dashboard
                         </button>
                     </div>
                 </form>
