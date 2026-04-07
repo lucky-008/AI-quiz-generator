@@ -48,6 +48,6 @@ export function getWeakTopics() {
             attempts: stats.count,
             lastDifficulty: stats.lastDifficulty,
         }))
-        .filter((t) => t.avgScore < 0.3)
+        .filter((t) => t.avgScore < 0.7)
         .sort((a, b) => a.avgScore - b.avgScore)
 }

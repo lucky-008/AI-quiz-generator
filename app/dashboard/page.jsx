@@ -7,6 +7,8 @@ import { getActivity, clearActivity, getWeakTopics } from '../utils/activityTrac
 const DashboardPage = () => {
     const router = useRouter()
     const [activity, setActivity] = useState([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 8
     const [expandedId, setExpandedId] = useState(null)
     const [weakTopics, setWeakTopics] = useState([])
 
@@ -59,6 +61,10 @@ const DashboardPage = () => {
         return 'text-red-400'
     }
 
+    // Pagination logic
+    const totalPages = Math.ceil(activity.length / itemsPerPage)
+    const paginatedActivity = [...activity].reverse().slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
     return (
         <div className='min-h-screen py-12'>
             <h1 className='text-center text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-600 bg-clip-text text-transparent q-animate-gradient'>
@@ -86,7 +92,7 @@ const DashboardPage = () => {
                 <div className='mt-10 max-w-3xl mx-auto'>
                     <div className='bg-red-900/15 border border-red-500/20 rounded p-5'>
                         <h2 className='text-lg font-semibold text-red-400 mb-1'>Weak Areas Detected</h2>
-                        <p className='text-xs text-gray-400 mb-4'>Topics where your average score is below 30%. Practice to improve!</p>
+                        <p className='text-xs text-gray-400 mb-4'>Topics where your average score is below 70%. Practice to improve!</p>
                         <div className='space-y-3'>
                             {weakTopics.map((wt) => (
                                 <div key={wt.topic} className='flex items-center justify-between bg-[#0a0e1a]/60 rounded p-3'>
@@ -181,73 +187,103 @@ const DashboardPage = () => {
                 {activity.length === 0 ? (
                     <p className='text-gray-400 text-sm'>No quizzes taken yet. Go generate one!</p>
                 ) : (
-                    <div className='overflow-x-auto'>
-                        <table className='w-full text-sm bg-blue-900/20 border border-blue-500/20 rounded'>
-                            <thead>
-                                <tr className='text-gray-400 border-b border-gray-600'>
-                                    <th className='text-left p-3'>#</th>
-                                    <th className='text-left p-3'>Topic</th>
-                                    <th className='text-left p-3'>Level</th>
-                                    <th className='text-right p-3'>Questions</th>
-                                    <th className='text-right p-3'>Score</th>
-                                    <th className='text-right p-3'>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {[...activity].reverse().map((a, i) => (
-                                    <>
-                                        <tr
-                                            key={a.id}
-                                            className='border-b border-blue-900/30 cursor-pointer hover:bg-blue-500/10'
-                                            onClick={() => setExpandedId(expandedId === a.id ? null : a.id)}
-                                        >
-                                            <td className='p-3 text-gray-400'>{activity.length - i}</td>
-                                            <td className='p-3 capitalize'>{a.topic}</td>
-                                            <td className={`p-3 capitalize ${difficultyColor(a.difficulty)}`}>{a.difficulty}</td>
-                                            <td className='text-right p-3'>{a.numQuestions}</td>
-                                            <td className={`text-right p-3 font-bold ${scoreColor(a.score)}`}>
-                                                {(a.score * 100).toFixed(0)}%
-                                            </td>
-                                            <td className='text-right p-3 text-gray-400'>
-                                                {new Date(a.date).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                        {expandedId === a.id && a.questions && a.questions.length > 0 && (
-                                            <tr key={`${a.id}-questions`}>
-                                                <td colSpan={6} className='p-0'>
-                                                    <div className='bg-[#0a0e1a]/80 p-4 border-b border-blue-900/30'>
-                                                        <h3 className='text-sm font-semibold text-cyan-300 mb-3'>Generated Questions</h3>
-                                                        <div className='space-y-3'>
-                                                            {a.questions.map((q, qi) => (
-                                                                <div key={qi} className='bg-blue-900/20 border border-blue-500/10 rounded p-3'>
-                                                                    <p className='text-sm font-medium'>
-                                                                        <span className='text-gray-400 mr-2'>Q{qi + 1}.</span>
-                                                                        {q.query}
-                                                                    </p>
-                                                                    <div className='mt-2 grid gap-1 ml-6'>
-                                                                        {q.choices?.map((c, ci) => (
-                                                                            <p key={ci} className={`text-xs ${
-                                                                                ci === Number(q.answer)
-                                                                                    ? 'text-cyan-300 font-semibold'
-                                                                                    : 'text-gray-400'
-                                                                            }`}>
-                                                                                {String.fromCharCode(65 + ci)}. {c}
-                                                                                {ci === Number(q.answer) && ' ✓'}
-                                                                            </p>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
+                    <>
+                        <div className='overflow-x-auto'>
+                            <table className='w-full text-sm bg-blue-900/20 border border-blue-500/20 rounded'>
+                                <thead>
+                                    <tr className='text-gray-400 border-b border-gray-600'>
+                                        <th className='text-left p-3'>#</th>
+                                        <th className='text-left p-3'>Topic</th>
+                                        <th className='text-left p-3'>Level</th>
+                                        <th className='text-right p-3'>Questions</th>
+                                        <th className='text-right p-3'>Score</th>
+                                        <th className='text-right p-3'>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedActivity.map((a, i) => (
+                                        <>
+                                            <tr
+                                                key={a.id}
+                                                className='border-b border-blue-900/30 cursor-pointer hover:bg-blue-500/10'
+                                                onClick={() => setExpandedId(expandedId === a.id ? null : a.id)}
+                                            >
+                                                <td className='p-3 text-gray-400'>{activity.length - ((currentPage - 1) * itemsPerPage + i)}</td>
+                                                <td className='p-3 capitalize'>{a.topic}</td>
+                                                <td className={`p-3 capitalize ${difficultyColor(a.difficulty)}`}>{a.difficulty}</td>
+                                                <td className='text-right p-3'>{a.numQuestions}</td>
+                                                <td className={`text-right p-3 font-bold ${scoreColor(a.score)}`}>
+                                                    {(a.score * 100).toFixed(0)}%
+                                                </td>
+                                                <td className='text-right p-3 text-gray-400'>
+                                                    {new Date(a.date).toLocaleDateString()}
                                                 </td>
                                             </tr>
-                                        )}
-                                    </>
+                                            {expandedId === a.id && a.questions && a.questions.length > 0 && (
+                                                <tr key={`${a.id}-questions`}>
+                                                    <td colSpan={6} className='p-0'>
+                                                        <div className='bg-[#0a0e1a]/80 p-4 border-b border-blue-900/30'>
+                                                            <h3 className='text-sm font-semibold text-cyan-300 mb-3'>Generated Questions</h3>
+                                                            <div className='space-y-3'>
+                                                                {a.questions.map((q, qi) => (
+                                                                    <div key={qi} className='bg-blue-900/20 border border-blue-500/10 rounded p-3'>
+                                                                        <p className='text-sm font-medium'>
+                                                                            <span className='text-gray-400 mr-2'>Q{qi + 1}.</span>
+                                                                            {q.query}
+                                                                        </p>
+                                                                        <div className='mt-2 grid gap-1 ml-6'>
+                                                                            {q.choices?.map((c, ci) => (
+                                                                                <p key={ci} className={`text-xs ${
+                                                                                    ci === Number(q.answer)
+                                                                                        ? 'text-cyan-300 font-semibold'
+                                                                                        : 'text-gray-400'
+                                                                                }`}>
+                                                                                    {String.fromCharCode(65 + ci)}. {c}
+                                                                                    {ci === Number(q.answer) && ' ✓'}
+                                                                                </p>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* Pagination controls */}
+                        {totalPages > 1 && (
+                            <div className='flex justify-center mt-6 gap-2'>
+                                <button
+                                    className='px-3 py-1 rounded border border-cyan-400 text-cyan-300 disabled:opacity-40'
+                                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Prev
+                                </button>
+                                {Array.from({ length: totalPages }, (_, idx) => (
+                                    <button
+                                        key={idx + 1}
+                                        className={`px-3 py-1 rounded border ${currentPage === idx + 1 ? 'bg-cyan-400 text-white' : 'border-cyan-400 text-cyan-300'}`}
+                                        onClick={() => setCurrentPage(idx + 1)}
+                                    >
+                                        {idx + 1}
+                                    </button>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                <button
+                                    className='px-3 py-1 rounded border border-cyan-400 text-cyan-300 disabled:opacity-40'
+                                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
