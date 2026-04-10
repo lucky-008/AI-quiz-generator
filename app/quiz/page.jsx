@@ -144,6 +144,7 @@ const QuizPage = () => {
     }, [progress])
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     // Handler for overall submission
     const handleSubmitAll = () => {
@@ -163,6 +164,8 @@ const QuizPage = () => {
     };
 
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+>>>>>>> 57b911d (Push latest changes)
     return (
         <div>
             {/* <div className='fixed right-0 p-4'>
@@ -207,13 +210,19 @@ const QuizPage = () => {
             ) : (
                 <div className='pt-12'>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 57b911d (Push latest changes)
                     {/* <button onClick={() => console.log(JSON.parse(stuff.replace(/\n/g, ''))) }>Show stuff</button>
                     <button onClick={() => console.log('asdf') }>Show asdf</button> */}
                     {quiz?.map((question, index) => (
                         // <div>{question.query}</div>
+<<<<<<< HEAD
 =======
                     {quiz?.map((question, index) => (
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+>>>>>>> 57b911d (Push latest changes)
                         <div className='mb-12' key={index}>
                             <Question
                                 question={question}
@@ -225,6 +234,7 @@ const QuizPage = () => {
                             />
                         </div>
                     ))}
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
                     {/* Overall Submit Button */}
@@ -239,6 +249,8 @@ const QuizPage = () => {
                         </button>
                     </div>
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+>>>>>>> 57b911d (Push latest changes)
                 </div>
             )}
         </div>

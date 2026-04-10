@@ -25,9 +25,12 @@ const DashboardPage = () => {
             : 0
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+>>>>>>> 57b911d (Push latest changes)
     // Group by topic
     const byTopic = activity.reduce((acc, a) => {
         const t = a.topic
@@ -38,6 +41,7 @@ const DashboardPage = () => {
     }, {})
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     // Pagination for By Topic table
     const [topicPage, setTopicPage] = useState(1)
@@ -47,6 +51,8 @@ const DashboardPage = () => {
     const paginatedTopics = topicEntries.slice((topicPage - 1) * topicsPerPage, topicPage * topicsPerPage)
 
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+>>>>>>> 57b911d (Push latest changes)
     // Group by difficulty
     const byDifficulty = activity.reduce((acc, a) => {
         const d = a.difficulty
@@ -144,6 +150,7 @@ const DashboardPage = () => {
                 <div className='bg-blue-900/20 border border-blue-500/20 rounded p-5'>
                     <h2 className='text-lg font-semibold text-cyan-300 mb-3'>By Topic</h2>
 <<<<<<< HEAD
+<<<<<<< HEAD
                     {Object.keys(byTopic).length === 0 ? (
                         <p className='text-gray-400 text-sm'>No data yet</p>
                     ) : (
@@ -153,6 +160,11 @@ const DashboardPage = () => {
                     ) : (
                         <>
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+                    {Object.keys(byTopic).length === 0 ? (
+                        <p className='text-gray-400 text-sm'>No data yet</p>
+                    ) : (
+>>>>>>> 57b911d (Push latest changes)
                         <table className='w-full text-sm'>
                             <thead>
                                 <tr className='text-gray-400 border-b border-gray-600'>
@@ -163,10 +175,14 @@ const DashboardPage = () => {
                             </thead>
                             <tbody>
 <<<<<<< HEAD
+<<<<<<< HEAD
                                 {Object.entries(byTopic).map(([topic, data]) => (
 =======
                                 {paginatedTopics.map(([topic, data]) => (
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+                                {Object.entries(byTopic).map(([topic, data]) => (
+>>>>>>> 57b911d (Push latest changes)
                                     <tr key={topic} className='border-b border-gray-700/50'>
                                         <td className='py-2 capitalize'>{topic}</td>
                                         <td className='text-right py-2'>{data.count}</td>
@@ -175,6 +191,7 @@ const DashboardPage = () => {
                                 ))}
                             </tbody>
                         </table>
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
                         {/* Pagination controls for topics */}
@@ -207,6 +224,8 @@ const DashboardPage = () => {
                         )}
                         </>
 >>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+=======
+>>>>>>> 57b911d (Push latest changes)
                     )}
                 </div>
 
