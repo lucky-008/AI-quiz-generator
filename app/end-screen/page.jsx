@@ -25,6 +25,10 @@ const EndScreen = () => {
     const params = useSearchParams()
 
     const score = Number(params.get('score'))
+    const correct = Number(params.get('correct'))
+    const wrong = Number(params.get('wrong'))
+    const attempted = Number(params.get('attempted'))
+    const notAttempted = Number(params.get('notAttempted'))
 
     const [message, setMessage] = useState('')
     const [gif, setGif] = useState('')
@@ -71,13 +75,19 @@ const EndScreen = () => {
             {score >= 0.8 && <Confetti width={width} height={height} className='overflow-hidden'/>}
 
             <div className='max-w-3xl flex flex-col items-center z-10'>
-                <h2 className='text-7xl'>Score: {score * 100}%</h2>
+                <h2 className='text-7xl mb-4'>Score: {score * 100}%</h2>
+                <div className='grid grid-cols-2 gap-4 text-xl mb-6'>
+                    <div className='bg-cyan-900/30 rounded-lg px-6 py-3 text-cyan-200 font-semibold'>Correct: {correct}</div>
+                    <div className='bg-red-900/30 rounded-lg px-6 py-3 text-red-300 font-semibold'>Wrong: {wrong}</div>
+                    <div className='bg-blue-900/30 rounded-lg px-6 py-3 text-blue-200 font-semibold'>Attempted: {attempted}</div>
+                    <div className='bg-gray-700/30 rounded-lg px-6 py-3 text-gray-300 font-semibold'>Not Attempted: {notAttempted}</div>
+                </div>
                 <iframe
                     src={gif}
                     width='480'
                     height='269'
                     // frameBorder='0'
-                    className='giphy-embed mt-16'
+                    className='giphy-embed mt-8'
                     allowFullScreen
                 ></iframe>
 

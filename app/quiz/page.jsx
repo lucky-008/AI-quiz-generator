@@ -31,6 +31,8 @@ const QuizPage = () => {
 
     const [numSubmitted, setNumSubmitted] = useState(0)
     const [numCorrect, setNumCorrect] = useState(0)
+    const [numWrong, setNumWrong] = useState(0)
+    const [numAttempted, setNumAttempted] = useState(0)
 
     const [progress, setProgress] = useState(0)
 
@@ -127,6 +129,9 @@ const QuizPage = () => {
         // if all questions submitted
         if (numSubmitted === numQuestions && numQuestions !== 0) {
             const score = numCorrect / numSubmitted
+            const attempted = numAttempted
+            const notAttempted = numQuestions - attempted
+            const wrong = numWrong
             saveQuizActivity({
                 topic,
                 difficulty,
@@ -134,9 +139,9 @@ const QuizPage = () => {
                 score,
                 questions: quiz,
             })
-            router.push(`/end-screen?score=${score}`)
+            router.push(`/end-screen?score=${score}&correct=${numCorrect}&wrong=${wrong}&attempted=${attempted}&notAttempted=${notAttempted}`)
         }
-    }, [numSubmitted, numQuestions, numCorrect, router])
+    }, [numSubmitted, numQuestions, numCorrect, numWrong, numAttempted, router])
 
     useEffect(() => {
         // update progress bar
@@ -148,7 +153,10 @@ const QuizPage = () => {
     const handleSubmitAll = () => {
         // If already submitted all, do nothing
         if (numSubmitted === numQuestions) return;
-        // Calculate score based on current numCorrect and numSubmitted
+        // Calculate stats
+        const attempted = numAttempted;
+        const notAttempted = numQuestions - attempted;
+        const wrong = numWrong;
         const score = numCorrect / (numSubmitted === 0 ? 1 : numSubmitted);
         setNumSubmitted(numQuestions);
         saveQuizActivity({
@@ -158,7 +166,7 @@ const QuizPage = () => {
             score,
             questions: quiz,
         });
-        router.push(`/end-screen?score=${score}`);
+        router.push(`/end-screen?score=${score}&correct=${numCorrect}&wrong=${wrong}&attempted=${attempted}&notAttempted=${notAttempted}`);
     };
 
 
@@ -202,6 +210,8 @@ const QuizPage = () => {
                             id={index}
                             setNumSubmitted={setNumSubmitted}
                             setNumCorrect={setNumCorrect}
+                            setNumAttempted={setNumAttempted}
+                            setNumWrong={setNumWrong}
                             timeUp={timeUp}
                         />
                     </div>

@@ -178,53 +178,86 @@ const DashboardPage = () => {
                 {activity.length === 0 ? (
                     <p className="text-gray-400">No activity</p>
                 ) : (
-                    <div className="overflow-x-auto rounded-lg shadow">
-                        <table className="w-full text-sm border border-cyan-900 bg-[#10182a]">
-                            <thead className="bg-cyan-900/40">
-                                <tr>
-                                    <th className="py-3 px-4 text-left font-bold tracking-wide">#</th>
-                                    <th className="py-3 px-4 text-left font-bold tracking-wide">Topic</th>
-                                    <th className="py-3 px-4 text-left font-bold tracking-wide">Level</th>
-                                    <th className="py-3 px-4 text-left font-bold tracking-wide">Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {paginatedActivity.map((a, i) => (
-                                    <React.Fragment key={a.id}>
-                                        <tr
-                                            onClick={() => setExpandedId(expandedId === a.id ? null : a.id)}
-                                            className={`cursor-pointer transition ${i % 2 === 0 ? 'bg-[#10182a]' : 'bg-[#16213a]'} hover:bg-cyan-900/20`}
-                                        >
-                                            <td className="py-2 px-4 align-top font-mono">{i + 1}</td>
-                                            <td className="py-2 px-4 align-top font-semibold">{a.topic}</td>
-                                            <td className={"py-2 px-4 align-top capitalize " + difficultyColor(a.difficulty)}>
-                                                {a.difficulty}
-                                            </td>
-                                            <td className={"py-2 px-4 align-top font-bold " + scoreColor(a.score)}>
-                                                {(a.score * 100).toFixed(0)}%
-                                            </td>
-                                        </tr>
-                                        {expandedId === a.id && (
-                                            <tr>
-                                                <td colSpan={4} className="bg-cyan-900/10 border-t border-cyan-900">
-                                                    <div className="p-4">
-                                                        <h4 className="text-cyan-200 font-semibold mb-2">Questions:</h4>
-                                                        <ul className="list-decimal list-inside space-y-1">
-                                                            {a.questions?.map((q, qi) => (
-                                                                <li key={qi} className="text-cyan-100">
-                                                                    <span className="font-semibold">Q{qi + 1}:</span> {q.query}
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
+                    <>
+                        <div className="overflow-x-auto rounded-lg shadow">
+                            <table className="w-full text-sm border border-cyan-900 bg-[#10182a]">
+                                <thead className="bg-cyan-900/40">
+                                    <tr>
+                                        <th className="py-3 px-4 text-left font-bold tracking-wide">#</th>
+                                        <th className="py-3 px-4 text-left font-bold tracking-wide">Topic</th>
+                                        <th className="py-3 px-4 text-left font-bold tracking-wide">Level</th>
+                                        <th className="py-3 px-4 text-left font-bold tracking-wide">Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedActivity.map((a, i) => (
+                                        <React.Fragment key={a.id}>
+                                            <tr
+                                                onClick={() => setExpandedId(expandedId === a.id ? null : a.id)}
+                                                className={`cursor-pointer transition ${i % 2 === 0 ? 'bg-[#10182a]' : 'bg-[#16213a]'} hover:bg-cyan-900/20`}
+                                            >
+                                                <td className="py-2 px-4 align-top font-mono">{(currentPage - 1) * itemsPerPage + i + 1}</td>
+                                                <td className="py-2 px-4 align-top font-semibold">{a.topic}</td>
+                                                <td className={"py-2 px-4 align-top capitalize " + difficultyColor(a.difficulty)}>
+                                                    {a.difficulty}
+                                                </td>
+                                                <td className={"py-2 px-4 align-top font-bold " + scoreColor(a.score)}>
+                                                    {(a.score * 100).toFixed(0)}%
                                                 </td>
                                             </tr>
-                                        )}
-                                    </React.Fragment>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                            {expandedId === a.id && (
+                                                <tr>
+                                                    <td colSpan={4} className="bg-cyan-900/10 border-t border-cyan-900">
+                                                        <div className="p-4">
+                                                            <h4 className="text-cyan-200 font-semibold mb-2">Questions:</h4>
+                                                            <ul className="list-decimal list-inside space-y-1 mb-4">
+                                                                {a.questions?.map((q, qi) => (
+                                                                    <li key={qi} className="text-cyan-100">
+                                                                        <span className="font-semibold">Q{qi + 1}:</span> {q.query}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                            <button
+                                                                className="mt-2 px-4 py-2 rounded bg-cyan-600 text-white font-semibold shadow hover:bg-cyan-400 transition"
+                                                                onClick={() => {
+                                                                    const params = new URLSearchParams({
+                                                                        topic: a.topic,
+                                                                        difficulty: a.difficulty,
+                                                                        numQuestions: a.numQuestions?.toString() || '5',
+                                                                    })
+                                                                    router.push(`/quiz?${params.toString()}`)
+                                                                }}
+                                                            >
+                                                                Retake This Quiz
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* Pagination Controls */}
+                        <div className="flex justify-end gap-2 mt-4">
+                            <button
+                                className="px-3 py-1 rounded bg-cyan-900 text-cyan-200 hover:bg-cyan-700 transition disabled:opacity-40"
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                            >
+                                Prev
+                            </button>
+                            <span className="px-2 py-1 text-cyan-200">Page {currentPage} of {totalPages}</span>
+                            <button
+                                className="px-3 py-1 rounded bg-cyan-900 text-cyan-200 hover:bg-cyan-700 transition disabled:opacity-40"
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </>
                 )}
             </div>
 

@@ -10,7 +10,7 @@ import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 //     explanation: 'Explanation',
 // }
 
-const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
+const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempted, setNumWrong, timeUp }) => {
     // const Question = ({ question, choices, explanation, answer }: QuestionProps) => {
     // const Question: React.FC<QuestionProps> = ({ question, choices, explanation, answer }: QuestionProps) => {
 
@@ -108,16 +108,22 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, timeUp }) => {
         if (isSubmitted) return
 
         setIsSubmitted(true)
-
         setNumSubmitted((prevNumSubmitted) => prevNumSubmitted + 1)
 
-        setSelectedChoiceIndex(
-            choiceObjects.findIndex((choice) => choice.isSelected)
-        )
+        const selectedIdx = choiceObjects.findIndex((choice) => choice.isSelected)
+        setSelectedChoiceIndex(selectedIdx)
 
-        if (isCorrect()) {
-            setNumCorrect((prevNumCorrect) => prevNumCorrect + 1)
-            setIsExplained(true)
+        if (selectedIdx !== -1) {
+            setNumAttempted((prev) => prev + 1)
+            if (isCorrect()) {
+                setNumCorrect((prevNumCorrect) => prevNumCorrect + 1)
+                setIsExplained(true)
+            } else {
+                setNumWrong((prev) => prev + 1)
+            }
+        } else {
+            // Not attempted
+            // No increment to attempted, correct, or wrong
         }
     }
 
