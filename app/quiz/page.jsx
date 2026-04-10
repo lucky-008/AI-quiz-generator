@@ -143,6 +143,26 @@ const QuizPage = () => {
         scaleX.set(progress)
     }, [progress])
 
+<<<<<<< HEAD
+=======
+    // Handler for overall submission
+    const handleSubmitAll = () => {
+        // If already submitted all, do nothing
+        if (numSubmitted === numQuestions) return;
+        // Calculate score based on current numCorrect and numSubmitted
+        const score = numCorrect / (numSubmitted === 0 ? 1 : numSubmitted);
+        setNumSubmitted(numQuestions);
+        saveQuizActivity({
+            topic,
+            difficulty,
+            numQuestions,
+            score,
+            questions: quiz,
+        });
+        router.push(`/end-screen?score=${score}`);
+    };
+
+>>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
     return (
         <div>
             {/* <div className='fixed right-0 p-4'>
@@ -186,10 +206,14 @@ const QuizPage = () => {
                 </div>
             ) : (
                 <div className='pt-12'>
+<<<<<<< HEAD
                     {/* <button onClick={() => console.log(JSON.parse(stuff.replace(/\n/g, ''))) }>Show stuff</button>
                     <button onClick={() => console.log('asdf') }>Show asdf</button> */}
                     {quiz?.map((question, index) => (
                         // <div>{question.query}</div>
+=======
+                    {quiz?.map((question, index) => (
+>>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
                         <div className='mb-12' key={index}>
                             <Question
                                 question={question}
@@ -201,6 +225,20 @@ const QuizPage = () => {
                             />
                         </div>
                     ))}
+<<<<<<< HEAD
+=======
+                    {/* Overall Submit Button */}
+                    <div className='flex justify-center mt-8'>
+                        <button
+                            type='button'
+                            className='q-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md'
+                            onClick={handleSubmitAll}
+                            disabled={numSubmitted === numQuestions}
+                        >
+                            Submit All
+                        </button>
+                    </div>
+>>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
                 </div>
             )}
         </div>
