@@ -143,9 +143,7 @@ const QuizPage = () => {
         scaleX.set(progress)
     }, [progress])
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
+
     // Handler for overall submission
     const handleSubmitAll = () => {
         // If already submitted all, do nothing
@@ -163,97 +161,65 @@ const QuizPage = () => {
         router.push(`/end-screen?score=${score}`);
     };
 
->>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
-=======
->>>>>>> 57b911d (Push latest changes)
-    return (
-        <div>
-            {/* <div className='fixed right-0 p-4'>
-                <div>Submitted: {numSubmitted}</div>
-                <div>Correct: {numCorrect}</div>
-            </div> */}
 
-            <motion.div className='progress-bar' style={{ scaleX }} />
+   return (
+    <div>
+        <motion.div className='progress-bar' style={{ scaleX }} />
 
-            {/* Overall timer */}
-            {!isLoading && !errorMessage && quiz.length > 0 && (
-                <div className='fixed top-12 right-4 z-20 bg-[#0a0e1a]/90 border border-blue-500/30 rounded-lg px-4 py-2'>
-                    <span className={`text-lg font-mono font-bold ${timerColor()}`}>
-                        {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
-                    </span>
+        {!isLoading && !errorMessage && quiz.length > 0 && (
+            <div className='fixed top-12 right-4 z-20 bg-[#0a0e1a]/90 border border-blue-500/30 rounded-lg px-4 py-2'>
+                <span className={`text-lg font-mono font-bold ${timerColor()}`}>
+                    {Math.floor(timeLeft / 60)}:
+                    {String(timeLeft % 60).padStart(2, '0')}
+                </span>
+            </div>
+        )}
+
+        {isLoading ? (
+            <LoadingScreen responseStream={responseStream} />
+        ) : errorMessage ? (
+            <div className='min-h-screen grid place-items-center px-6'>
+                <div className='max-w-xl text-center'>
+                    <h1 className='text-2xl font-semibold text-red-300'>
+                        Quiz generation failed
+                    </h1>
+                    <p className='mt-4 text-white/70'>{errorMessage}</p>
+                    <button
+                        type='button'
+                        className='q-button mt-8'
+                        onClick={() => router.push('/')}
+                    >
+                        Back to home
+                    </button>
                 </div>
-            )}
-
-            {/* <h1 className='pt-12 text-3xl font-semibold text-center'>
-                Quiz Page
-            </h1> */}
-            {isLoading ? (
-                <>
-                    <LoadingScreen responseStream={responseStream} />
-                </>
-            ) : errorMessage ? (
-                <div className='min-h-screen grid place-items-center px-6'>
-                    <div className='max-w-xl text-center'>
-                        <h1 className='text-2xl font-semibold text-red-300'>
-                            Quiz generation failed
-                        </h1>
-                        <p className='mt-4 text-white/70'>{errorMessage}</p>
-                        <button
-                            type='button'
-                            className='q-button mt-8'
-                            onClick={() => router.push('/')}
-                        >
-                            Back to home
-                        </button>
+            </div>
+        ) : (
+            <div className='pt-12'>
+                {quiz?.map((question, index) => (
+                    <div className='mb-12' key={index}>
+                        <Question
+                            question={question}
+                            id={index}
+                            setNumSubmitted={setNumSubmitted}
+                            setNumCorrect={setNumCorrect}
+                            timeUp={timeUp}
+                        />
                     </div>
+                ))}
+
+                <div className='flex justify-center mt-8'>
+                    <button
+                        type='button'
+                        className='q-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md'
+                        onClick={handleSubmitAll}
+                        disabled={numSubmitted === numQuestions}
+                    >
+                        Submit All
+                    </button>
                 </div>
-            ) : (
-                <div className='pt-12'>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 57b911d (Push latest changes)
-                    {/* <button onClick={() => console.log(JSON.parse(stuff.replace(/\n/g, ''))) }>Show stuff</button>
-                    <button onClick={() => console.log('asdf') }>Show asdf</button> */}
-                    {quiz?.map((question, index) => (
-                        // <div>{question.query}</div>
-<<<<<<< HEAD
-=======
-                    {quiz?.map((question, index) => (
->>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
-=======
->>>>>>> 57b911d (Push latest changes)
-                        <div className='mb-12' key={index}>
-                            <Question
-                                question={question}
-                                id={index}
-                                key={index}
-                                setNumSubmitted={setNumSubmitted}
-                                setNumCorrect={setNumCorrect}
-                                timeUp={timeUp}
-                            />
-                        </div>
-                    ))}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-                    {/* Overall Submit Button */}
-                    <div className='flex justify-center mt-8'>
-                        <button
-                            type='button'
-                            className='q-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md'
-                            onClick={handleSubmitAll}
-                            disabled={numSubmitted === numQuestions}
-                        >
-                            Submit All
-                        </button>
-                    </div>
->>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
-=======
->>>>>>> 57b911d (Push latest changes)
-                </div>
-            )}
-        </div>
-    )
+            </div>
+        )}
+    </div>
+)
 }
 export default QuizPage

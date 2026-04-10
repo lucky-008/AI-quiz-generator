@@ -1,17 +1,10 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-<<<<<<< HEAD
-    
-=======
->>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
+    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "incremental": true,
@@ -21,30 +14,19 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "target": "ES2017",
     "plugins": [
       {
         "name": "next"
       }
-    ],
-<<<<<<< HEAD
-    "strictNullChecks": true
-=======
-    "strictNullChecks": true,
-    "target": "ES2017"
->>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
+    ]
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
     "**/*.ts",
-<<<<<<< HEAD
     "**/*.tsx"
-=======
-    "**/*.tsx",
-    ".next/dev/types/**/*.ts"
->>>>>>> 42f5ae2 (Add quiz submit all button and topic table pagination)
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
