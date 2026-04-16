@@ -49,6 +49,8 @@ const QuizPage = () => {
         restDelta: 0.002,
     })
 
+    const hasSubmittedRef = useRef(false)
+
     useEffect(() => {
         const generateQuestions = async () => {
             setIsLoading(true)
@@ -128,17 +130,10 @@ const QuizPage = () => {
 
         // if all questions submitted
         if (numSubmitted === numQuestions && numQuestions !== 0) {
-            const score = numCorrect / numSubmitted
             const attempted = numAttempted
             const notAttempted = numQuestions - attempted
             const wrong = numWrong
-            saveQuizActivity({
-                topic,
-                difficulty,
-                numQuestions,
-                score,
-                questions: quiz,
-            })
+            const score = numCorrect / numSubmitted
             router.push(`/end-screen?score=${score}&correct=${numCorrect}&wrong=${wrong}&attempted=${attempted}&notAttempted=${notAttempted}`)
         }
     }, [numSubmitted, numQuestions, numCorrect, numWrong, numAttempted, router])
@@ -151,8 +146,11 @@ const QuizPage = () => {
 
     // Handler for overall submission
     const handleSubmitAll = () => {
-        // If already submitted all, do nothing
-        if (numSubmitted === numQuestions) return;
+        // Prevent duplicate submissions
+        if (hasSubmittedRef.current || numSubmitted === numQuestions) return;
+        
+        hasSubmittedRef.current = true;
+        
         // Calculate stats
         const attempted = numAttempted;
         const notAttempted = numQuestions - attempted;

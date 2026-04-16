@@ -143,16 +143,16 @@ const DashboardPage = () => {
                     <>
                         <div className="overflow-x-auto rounded-lg shadow">
                             <table className="w-full text-sm border border-cyan-900 bg-[#10182a]">
-                                <thead className="bg-cyan-900/30">
+                                <thead className="bg-cyan-900/40">
                                     <tr>
-                                        <th className="py-2 px-4">Topic</th>
-                                        <th className="py-2 px-4">Quizzes</th>
-                                        <th className="py-2 px-4">Questions</th>
+                                        <th className="py-3 px-4 text-left font-bold tracking-wide">Topic</th>
+                                        <th className="py-3 px-4 text-left font-bold tracking-wide">Quizzes</th>
+                                        <th className="py-3 px-4 text-left font-bold tracking-wide">Questions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paginatedTopics.map(([topic, data]) => (
-                                        <tr key={topic} className="hover:bg-cyan-900/10 transition">
+                                    {paginatedTopics.map(([topic, data], i) => (
+                                        <tr key={topic} className={`transition ${i % 2 === 0 ? 'bg-[#10182a]' : 'bg-[#16213a]'} hover:bg-cyan-900/20`}>
                                             <td className="py-2 px-4">{topic}</td>
                                             <td className="py-2 px-4">{data.count}</td>
                                             <td className="py-2 px-4">{data.questions}</td>
@@ -162,10 +162,23 @@ const DashboardPage = () => {
                             </table>
                         </div>
 
-                        {/* Pagination */}
-                        <div className="flex gap-2 mt-3 justify-end">
-                            <button onClick={() => setTopicPage(p => Math.max(1, p - 1))} className="px-3 py-1 rounded bg-cyan-900 text-cyan-200 hover:bg-cyan-700 transition">Prev</button>
-                            <button onClick={() => setTopicPage(p => Math.min(totalTopicPages, p + 1))} className="px-3 py-1 rounded bg-cyan-900 text-cyan-200 hover:bg-cyan-700 transition">Next</button>
+                        {/* Pagination Controls */}
+                        <div className="flex justify-end gap-2 mt-4">
+                            <button
+                                className="px-3 py-1 rounded bg-cyan-900 text-cyan-200 hover:bg-cyan-700 transition disabled:opacity-40"
+                                onClick={() => setTopicPage((p) => Math.max(1, p - 1))}
+                                disabled={topicPage === 1}
+                            >
+                                Prev
+                            </button>
+                            <span className="px-2 py-1 text-cyan-200">Page {topicPage} of {totalTopicPages}</span>
+                            <button
+                                className="px-3 py-1 rounded bg-cyan-900 text-cyan-200 hover:bg-cyan-700 transition disabled:opacity-40"
+                                onClick={() => setTopicPage((p) => Math.min(totalTopicPages, p + 1))}
+                                disabled={topicPage === totalTopicPages}
+                            >
+                                Next
+                            </button>
                         </div>
                     </>
                 )}
