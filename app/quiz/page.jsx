@@ -37,6 +37,10 @@ const QuizPage = () => {
     const [progress, setProgress] = useState(0)
 
     const [responseStream, setResponseStream] = useState('')
+    
+    const [questionResults, setQuestionResults] = useState([]) // Track which questions were correct/wrong
+
+    const [forceSubmit, setForceSubmit] = useState(false) // Trigger submission for all questions
 
     // Overall timer: 1 minute per question
     const [timeLeft, setTimeLeft] = useState(numQuestions * 60)
@@ -127,16 +131,42 @@ const QuizPage = () => {
     useEffect(() => {
         // set progress 0 - 1
         setProgress(numQuestions ? numSubmitted / numQuestions : 0)
+    }, [numSubmitted, numQuestions])
 
-        // if all questions submitted
+    // Handle redirect when all questions are submitted
+    useEffect(() => {
         if (numSubmitted === numQuestions && numQuestions !== 0) {
             const attempted = numAttempted
             const notAttempted = numQuestions - attempted
             const wrong = numWrong
             const score = numCorrect / numSubmitted
-            router.push(`/end-screen?score=${score}&correct=${numCorrect}&wrong=${wrong}&attempted=${attempted}&notAttempted=${notAttempted}`)
+            
+            // Save quiz activity to history
+            saveQuizActivity({
+                topic,
+                difficulty,
+                numQuestions,
+                score,
+                questions: quiz,
+            })
+            
+            // Store results in sessionStorage for end screen
+            const resultsData = {
+                quiz,
+                questionResults,
+                score,
+                correct: numCorrect,
+                wrong,
+                attempted,
+                notAttempted,
+                timeOver: timeUp,
+            };
+            sessionStorage.setItem('quizResults', JSON.stringify(resultsData))
+            
+            const timeOverParam = timeUp ? '&timeOver=true' : ''
+            router.push(`/end-screen?score=${score}&correct=${numCorrect}&wrong=${wrong}&attempted=${attempted}&notAttempted=${notAttempted}${timeOverParam}`)
         }
-    }, [numSubmitted, numQuestions, numCorrect, numWrong, numAttempted, router])
+    }, [numSubmitted, numQuestions, numCorrect, numWrong, numAttempted, questionResults, quiz, router, topic, difficulty, timeUp])
 
     useEffect(() => {
         // update progress bar
@@ -144,28 +174,28 @@ const QuizPage = () => {
     }, [progress])
 
 
-    // Handler for overall submission
+    // Handler for Submit All button - triggers submission for all questions
     const handleSubmitAll = () => {
-        // Prevent duplicate submissions
-        if (hasSubmittedRef.current || numSubmitted === numQuestions) return;
-        
-        hasSubmittedRef.current = true;
-        
-        // Calculate stats
-        const attempted = numAttempted;
-        const notAttempted = numQuestions - attempted;
-        const wrong = numWrong;
-        const score = numCorrect / (numSubmitted === 0 ? 1 : numSubmitted);
-        setNumSubmitted(numQuestions);
-        saveQuizActivity({
-            topic,
-            difficulty,
-            numQuestions,
-            score,
-            questions: quiz,
-        });
-        router.push(`/end-screen?score=${score}&correct=${numCorrect}&wrong=${wrong}&attempted=${attempted}&notAttempted=${notAttempted}`);
+        setForceSubmit(true)
     };
+
+    const handleQuestionAnswered = (questionId, isCorrect, selectedIndex) => {
+        setQuestionResults((prev) => [
+            ...prev,
+            {
+                questionId,
+                isCorrect,
+                selectedIndex,
+            }
+        ])
+    };
+
+    // Auto-submit when time runs up
+    useEffect(() => {
+        if (timeUp && numSubmitted < numQuestions) {
+            setForceSubmit(true)
+        }
+    }, [timeUp, numSubmitted, numQuestions])
 
 
    return (
@@ -211,16 +241,23 @@ const QuizPage = () => {
                             setNumAttempted={setNumAttempted}
                             setNumWrong={setNumWrong}
                             timeUp={timeUp}
+                            onQuestionAnswered={handleQuestionAnswered}
+                            forceSubmit={forceSubmit}
                         />
                     </div>
                 ))}
 
-                <div className='flex justify-center mt-8'>
+                <div className='flex flex-col items-center gap-4 mt-8'>
+                    {timeUp && (
+                        <div className='text-center text-red-400 text-lg font-bold'>
+                            ⏰ Time Over! Auto-submitting...
+                        </div>
+                    )}
                     <button
                         type='button'
                         className='q-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md'
                         onClick={handleSubmitAll}
-                        disabled={numSubmitted === numQuestions}
+                        disabled={timeUp || forceSubmit}
                     >
                         Submit All
                     </button>

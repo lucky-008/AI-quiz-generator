@@ -10,7 +10,7 @@ import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 //     explanation: 'Explanation',
 // }
 
-const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempted, setNumWrong, timeUp }) => {
+const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempted, setNumWrong, timeUp, onQuestionAnswered, forceSubmit }) => {
     // const Question = ({ question, choices, explanation, answer }: QuestionProps) => {
     // const Question: React.FC<QuestionProps> = ({ question, choices, explanation, answer }: QuestionProps) => {
 
@@ -74,12 +74,12 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempte
         }
     }
 
-    // Auto-submit when global timer runs out
+    // Auto-submit when global timer runs out or when parent forces submission
     useEffect(() => {
-        if (timeUp && !isSubmitted) {
+        if ((timeUp || forceSubmit) && !isSubmitted) {
             handleAnswerSubmit()
         }
-    }, [timeUp])
+    }, [timeUp, forceSubmit, isSubmitted])
 
     const isCorrect = () => {
         return Number(answer) === selectedChoiceIndex
@@ -115,15 +115,23 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempte
 
         if (selectedIdx !== -1) {
             setNumAttempted((prev) => prev + 1)
-            if (isCorrect()) {
+            const isAnswerCorrect = Number(answer) === selectedIdx
+            if (isAnswerCorrect) {
                 setNumCorrect((prevNumCorrect) => prevNumCorrect + 1)
                 setIsExplained(true)
             } else {
                 setNumWrong((prev) => prev + 1)
             }
+            
+            // Callback to notify parent
+            if (onQuestionAnswered) {
+                onQuestionAnswered(id, isAnswerCorrect, selectedIdx)
+            }
         } else {
-            // Not attempted
-            // No increment to attempted, correct, or wrong
+            // Not attempted - callback with false to track as unanswered
+            if (onQuestionAnswered) {
+                onQuestionAnswered(id, false, -1)
+            }
         }
     }
 
@@ -158,26 +166,27 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempte
 
             let checkOrX = null
 
-            if (isSubmitted) {
-                if (index === selectedChoiceIndex) {
-                    if (isCorrect()) {
-                        style = 'border-cyan-300 bg-cyan-300/10'
-                        checkOrX = (
-                            <div>
-                                <HiCheck size={30} color='#67e8f9' />
-                            </div>
-                        )
-                    } else {
-                        style = 'border-red-400 bg-red-400/10'
-                        checkOrX = (
-                            <div>
-                                <HiOutlineXMark size={30} color='#f87171' />
-                            </div>
-                        )
-                    }
+            // Show feedback when selected (before or after submission)
+            if (choice.isSelected && selectedChoiceIndex === index) {
+                const isAnswerCorrect = Number(answer) === selectedChoiceIndex
+                if (isAnswerCorrect) {
+                    style = 'border-cyan-300 bg-cyan-300/10'
+                    checkOrX = (
+                        <div>
+                            <HiCheck size={30} color='#67e8f9' />
+                        </div>
+                    )
+                } else {
+                    style = 'border-red-400 bg-red-400/10'
+                    checkOrX = (
+                        <div>
+                            <HiOutlineXMark size={30} color='#f87171' />
+                        </div>
+                    )
                 }
             }
 
+            // Show correct answer explanation after submission
             if (isExplained) {
                 if (index === Number(answer)) {
                     style = 'border-cyan-300 bg-cyan-300/10'
@@ -241,6 +250,14 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempte
                 <div className='py-2 mt-2 text-xl'>{query}</div>
                 <div className='grid gap-2 mt-4'>{renderChoices()}</div>
                 <div className='flex items-center justify-end gap-2 mt-2 itesm'>
+                    {selectedChoiceIndex !== -1 && !isSubmitted && (
+                        <button
+                            onClick={handleExplain}
+                            className={`px-6 py-3  border-blue-900/50 rounded bg-[#111827] hover:bg-blue-900/40 cursor-pointer`}
+                        >
+                            Preview Explanation
+                        </button>
+                    )}
                     {isSubmitted && (
                         <button
                             onClick={handleExplain}
@@ -249,14 +266,8 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempte
                             Explain
                         </button>
                     )}
-                    <button
-                        onClick={handleAnswerSubmit}
-                        className={`px-6 py-3   rounded ${submitButtonStyles()}`}
-                    >
-                        {isSubmitted ? 'Submitted' : 'Submit'}
-                    </button>
                 </div>
-                {((isSubmitted && isCorrect()) || isExplained) && (
+                {isSubmitted && (
                     <div className='mt-2 p-4 rounded bg-blue-900/20 border border-blue-500/20'>
                         <h3 className='text-cyan-300/80 text-sm font-bold'>
                             Explanation
@@ -266,7 +277,7 @@ const Question = ({ question, id, setNumSubmitted, setNumCorrect, setNumAttempte
                 )}
 
                 {/* Chat with AI - shows only when user got it wrong */}
-                {isSubmitted && !isCorrect() && isExplained && (
+                {isSubmitted && !isCorrect() && (
                     <div className='mt-3'>
                         {!chatOpen ? (
                             <button
